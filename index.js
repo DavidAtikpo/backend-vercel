@@ -23,7 +23,7 @@ dbConnect();
 app.use(bodyParser.json());
 app.use(cors(
     {
-        origin: ["http://localhost:8080"],
+        origin: ["https://nouveau-project.vercel.app/"],
         methods:["POST","GET"],
         credentials:true
     }
