@@ -78,11 +78,11 @@ const userWithPasswordSchema = userBaseSchema.keys({
       "string.empty": "Field cannot be an empty field.",
       "any.required": "Field is a required field."
     }),
-  confirmPassword: joi.string().required().valid(joi.ref("password")).messages({
-    "any.only": "Passwords do not match.",
-    "string.empty": "Field cannot be an empty field.",
-    "any.required": "Field is a required field."
-  })
+  // confirmPassword: joi.string().required().valid(joi.ref("password")).messages({
+  //   "any.only": "Passwords do not match.",
+  //   "string.empty": "Field cannot be an empty field.",
+  //   "any.required": "Field is a required field."
+  // })
 });
 
 const Validator = async (req, res, next) => {

@@ -15,4 +15,7 @@ router.post('/entre',middleware.authMiddleware,suEOControllre.incoming)
 router.post('/rapport',middleware.authMiddleware,suEOControllre.userOut)
 router.get('/getobject',middleware.authMiddleware,suEOControllre.getObjectives)
 router.put('/update/:id',userController.updateUser)
+router.post('/forgot-password',userController.forgotPassword);
+router.post('/reset-password/:token',userController.resetPassword);
+
 export default router

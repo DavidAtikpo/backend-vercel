@@ -3,6 +3,8 @@ import generateRefreshToken from "../dbConfig/refreshToken.js";
 import generateToken from "../dbConfig/jwtToken.js"
 import nodemailer from "nodemailer"
 import jwt  from "jsonwebtoken";
+import crypto from 'crypto'
+// import { json } from "body-parser";
 
 const register = async (req, res) => {
   const { email } = req.body;
@@ -11,10 +13,10 @@ const register = async (req, res) => {
   const findrole = await User.findOne({role});
 
   if (findexisting) {
-    return res.status(409).json({ message: "Email already exists" });
+    return res.status(400).json({ email: "Email already exists" });
   }
   if (findrole) {
-    return res.status(403).json({ erreur: "Vous n'est pas coordinateur" });
+    return res.status(400).json({ role: "Role already exists" });
   }
 
   if (req.body.role === "admin") {
@@ -202,28 +204,48 @@ const loginAdmin = async(req,res)=>{
 };
 // login user
 
-const loginUser = async(req,res)=>{
-  const {email,password}= req.body;
-  const findUser = await User.findOne({email});
+const loginUser = async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
-  if(findUser && await findUser.isPasswordMatched(password)){
-    const refreshToken = await generateRefreshToken(findUser?.id)
-    const updateuser = await User.findByIdAndUpdate(findUser?.id, {refreshToken:refreshToken},{new:true})
-    res.cookie('refreshToken',refreshToken,{
-      httpOnly:true,
-      maxAge:72*60*60*1000,
-    })
-  res.json({
-    _id:findUser?._id,
-    firstName:findUser?.firstName,
-    lastName:findUser?.lastName,
-    token:generateToken(findUser?._id),
-    role:findUser?.role
-  })
-  }else{
-    throw new Error("Invalid credentials")
+    // Recherche de l'utilisateur dans la base de données par email
+    const findUser = await User.findOne({ email });
+
+    if (!findUser) {
+      return res.status(400).json({ error: 'Invalid email' });
+    }
+
+    // Vérification de la correspondance du mot de passe
+    const passwordMatch = await findUser.isPasswordMatched(password);
+
+    if (!passwordMatch) {
+      return res.status(400).json({ error: 'Invalid password' });
+    }
+
+    // Génération d'un jeton de rafraîchissement et mise à jour de l'utilisateur
+    const refreshToken = await generateRefreshToken(findUser._id);
+    await User.findByIdAndUpdate(findUser._id, { refreshToken: refreshToken }, { new: true });
+
+    // Stockage du jeton de rafraîchissement dans un cookie HTTP-only
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      maxAge: 72 * 60 * 60 * 1000, // 3 jours
+    });
+
+    // Envoi de la réponse JSON avec les informations de l'utilisateur et le jeton
+    return res.json({
+      _id: findUser._id,
+      firstName: findUser.firstName,
+      lastName: findUser.lastName,
+      token: generateToken(findUser._id),
+      role: findUser.role,
+    });
+  } catch (error) {
+    console.error("Login error: ", error);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 };
+
 
 
 // admin will get all users
@@ -305,6 +327,74 @@ const getProfilePhotoURL = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+// forgot password 
+
+const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+
+  // Check if user exists
+  const user = await User.findOne({ email });
+  if (!user) {
+    return res.status(404).json({ error: 'Email not found' });
+  }
+
+  // Generate reset token
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+
+  // Set reset token and expiration time in the user record
+  user.passwordResetToken = hashedToken;
+  user.passwordResetExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+  await user.save();
+
+  // Send reset email
+  const resetURL = `${req.protocol}://${req.get('host')}/resset/${resetToken}`;
+  const message = `You requested a password reset. Click the link to reset your password: ${resetURL}`;
+  console.log(message);
+  
+  try {
+    await sendEmail({
+      email: user.email,
+      subject: 'Password Reset',
+      message
+    });
+
+    res.status(200).json({ success: 'Reset link sent to email' });
+  } catch (error) {
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    await user.save();
+
+    res.status(500).json({ error: 'Email could not be sent' });
+  }
+};
+
+// reset password 
+const resetPassword = async (req, res) => {
+  const { token } = req.params;
+  const { password } = req.body;
+
+  const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+  // Find user by reset token
+  const user = await User.findOne({
+    passwordResetToken: hashedToken,
+    passwordResetExpires: { $gt: Date.now() }
+  });
+
+  if (!user) {
+    return res.status(400).json({ error: 'Token is invalid or has expired' });
+  }
+
+  // Update password and clear reset token fields
+  user.password = password;
+  user.passwordResetToken = undefined;
+  user.passwordResetExpires = undefined;
+  await user.save();
+
+  res.status(200).json({ success: 'Password has been reset' });
+};
 
 
-export default { register, loginUser,verifyEmail,reVerifyUser,loginAdmin,getAllUsers,updateUser,getProfilePhotoURL,updateProfilePhotoURL };
+
+export default { register, loginUser,verifyEmail,reVerifyUser,loginAdmin,getAllUsers,updateUser,getProfilePhotoURL,updateProfilePhotoURL,forgotPassword,resetPassword  };

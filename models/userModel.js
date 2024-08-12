@@ -34,7 +34,7 @@ isVerified:{
 },
 profilePhotoURL: {
   type: String, 
-  default: '/default-profile-photo.jpg' // URL par défaut si l'utilisateur n'a pas de photo de profil
+  default: '/default-user-profile-svgrepo-com (1).svg' // URL par défaut si l'utilisateur n'a pas de photo de profil
 },
 role:{
   type:String,
@@ -59,9 +59,9 @@ userSchema.pre("save", async function(next){
     next();
   }
   const salt = bcrypt.genSaltSync(10);
-  this.password = await bcrypt.hash(this.password, salt),
+  this.password = await bcrypt.hash(this.password, salt)
   
-  this.confirmPassword = await bcrypt.hash(this.confirmPassword, salt)
+  // this.confirmPassword = await bcrypt.hash(this.confirmPassword, salt)
 });
 userSchema.methods.isPasswordMatched = async function(enteredPassword){
   return await bcrypt.compare(enteredPassword,this.password)
