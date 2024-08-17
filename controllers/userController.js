@@ -4,6 +4,7 @@ import generateToken from "../dbConfig/jwtToken.js"
 import nodemailer from "nodemailer"
 import jwt  from "jsonwebtoken";
 import crypto from 'crypto'
+import sendEmail from "../utils/utilitie.js"
 // import { json } from "body-parser";
 
 const register = async (req, res) => {
@@ -348,7 +349,7 @@ const forgotPassword = async (req, res) => {
   await user.save();
 
   // Send reset email
-  const resetURL = `${req.protocol}://${req.get('host')}/resset/${resetToken}`;
+  const resetURL = `${req.protocol}://${req.get('host')}/user/forgot/${resetToken}`;
   const message = `You requested a password reset. Click the link to reset your password: ${resetURL}`;
   console.log(message);
   
