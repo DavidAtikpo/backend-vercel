@@ -24,10 +24,6 @@ password:{
   type:String,
   require:true,
 },
-confirmPassword:{
-  type:String,
-  required:true
-},
 isVerified:{
   type:Boolean,
   default:false,
@@ -38,7 +34,7 @@ profilePhotoURL: {
 },
 role:{
   type:String,
-  default:"",
+  default:'',
 },
 refreshToken:{
   type:String,

@@ -1,7 +1,43 @@
 import Enter from "../models/suEnModel.js";
-import Out from "../models/suOuModel.js";
+import Out from "../models/userReport.js";
 import User from "../models/userModel.js";
 import validateMongoDbId from "../utils/validateMongodbid.js";
+
+
+// Importez les fonctions depuis le fichier StatistiqueController.js
+import { calculateDailyStats, calculateWeeklyStats, calculateMonthlyStats, calculateYearlyStats } from './StatistiqueController.js';
+
+// Votre code dans suEOControllre.js ou suEOController.js
+const userOut = async (req, res) => {
+  const userId = req.user;
+  try {
+    const findUser = await User.findById(userId);
+    if (!findUser) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    const fieldBody = {
+      ...req.body,
+      postedBy: findUser._id,
+    };
+
+    const createReport = await Out.create(fieldBody);
+
+    // Appel des fonctions de calcul des statistiques
+    await calculateDailyStats();
+    await calculateWeeklyStats();
+    await calculateMonthlyStats();
+    await calculateYearlyStats();
+
+    return res.status(201).json(createReport);
+
+  } catch (error) {
+    console.error('Error saving user report:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+
 // User will create the time he comes to service for the objective of the day
 const incoming = async (req, res) => {
   const user = req.user; // Assuming the user object is available in the request
@@ -26,31 +62,6 @@ const incoming = async (req, res) => {
 };
 
 
-// User will create the time he leaves the service and adds a comment
-// User will crthis.objectiveTime = 'Today at 9:00 AM'; // Replace with actual time
-        // this.profilePhotoURL = '/path/to/profile/photo.jpg'; // Replace with actual URL
-        // this.userName = 'John Doe'; // Replace with actual name
-        // this.userRole = 'Admin'; // Replace with actual role
-        // this.objectiveText = 'Complete project tasks'; // Replace with actual objectiveeate the time he leaves the service and adds a comment
-const userOut = async (req, res) => {
-    const userId = req.user;
-    try {
-      const findUser = await User.findById(userId);
-      if (!findUser) {
-          return res.status(404).json({ message: "User not found." });
-      }
-      const fieldBody = {
-        ...req.body,
-        postedBy: findUser._id, };
-       
-        
-        const createRepport = await Out.create(fieldBody);
-       return res.status(200).json(createRepport);
-      
-    } catch (error) {
-      throw new Error(error);
-    }
-  };
 //Admin will get all the user report 
 
   const getAllreport = async(req,res)=>{
