@@ -19,12 +19,13 @@ const __dirname = dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 7000;
 // http://localhost:8080
+// http://localhost:5173
 // https://nouveau-project.vercel.app
 dbConnect();
 app.use(bodyParser.json());
 app.use(cors(
     {
-        origin: ["http://localhost:8080"],
+        origin: ["https://nouveau-project.vercel.app"],
         methods:["POST", "GET"],
         credentials:true
     }

@@ -5,6 +5,8 @@ import Out from '../models/userReport.js'; // Votre modèle `UserReport`
 export const calculateDailyStats = async () => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
+  
+  const dayOfWeek = today.toLocaleDateString('en-US', { weekday: 'long' }); // Obtient le jour de la semaine en anglais (par exemple, 'Monday')
 
   try {
     const reports = await Out.find({ createdAt: { $gte: today } });
@@ -17,7 +19,10 @@ export const calculateDailyStats = async () => {
 
       await DailyStats.findOneAndUpdate(
         { date: today }, // Find the document with today's date
-        { averagePercentage }, // Update the average percentage
+        { 
+          averagePercentage, // Update the average percentage
+          dayOfWeek // Include the day of the week
+        },
         { upsert: true, new: true, setDefaultsOnInsert: true } // Create a new document if one doesn't exist
       );
       
@@ -129,13 +134,21 @@ export const calculateYearlyStats = async () => {
 
 export const getDailyStats = async (req, res) => {
   try {
-    const dailyStats = await DailyStats.find(); // Fetch daily stats from DB
-    console.log("statistique du jour",dailyStats);
-    res.status(200).json(dailyStats);
+    const dailyStats = await DailyStats.find({});
+    // Map to include dayOfWeek in response
+    const formattedStats = dailyStats.map(stat => ({
+      day: stat.dayOfWeek,
+      averagePercentage: stat.averagePercentage
+    }));
+
+    console.log("Statistiques du jour", formattedStats);
+    res.status(200).json(formattedStats);
   } catch (error) {
     res.status(500).json({ message: "Error fetching daily statistics", error });
   }
 };
+
+
 
 // get week statistics
 export const getWeeklyStats = async (req, res) => {

@@ -2,7 +2,8 @@ import mongoose from 'mongoose';
 
 const dailyStatsSchema = new mongoose.Schema({
   date: { type: Date, required: true, unique: true },
-  averagePercentage: { type: Number, required: true }
+  averagePercentage: { type: Number, required: true },
+  dayOfWeek: { type: String, required: true }
 });
 
 const weeklyStatsSchema = new mongoose.Schema({
