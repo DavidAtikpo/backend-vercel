@@ -87,10 +87,12 @@ const PORT = process.env.PORT || 7000;
 dbConnect();
 // http://localhost:5173
 // https://nouveau-project.vercel.app
+// projet-cde213.vercel.app
+
 // Middleware
 app.use(bodyParser.json());
 app.use(cors({
-    origin: ["https://nouveau-project.vercel.app"],
+    origin: ["https://projet-cde213.vercel.app"],
     methods: ["POST", "GET"],
     credentials: true
 }));
