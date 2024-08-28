@@ -77,17 +77,18 @@ const app = express();
 const server = http.createServer(app);  // Create an HTTP server
 const io = new Server(server, {
     cors: {
-        origin: ["https://projet-cde213.vercel.app"],
+        origin: ["https://projet-cde213.vercel.app/"],
         methods: ["POST", "GET"],
         credentials: true
     }
 });
 const PORT = process.env.PORT || 7000;
-
-dbConnect();
 // http://localhost:5173
 // https://nouveau-project.vercel.app
 // projet-cde213.vercel.app
+// https://projet-cde213.vercel.app
+
+dbConnect();
 
 // Middleware
 app.use(bodyParser.json());
