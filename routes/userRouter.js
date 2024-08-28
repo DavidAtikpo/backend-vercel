@@ -3,6 +3,7 @@ import userController from "../controllers/userController.js";
 import middleware from "../middleware/authMiddleware.js";
 import Validator from "../Validator/Validator.js";
 import suEOControllre from "../controllers/suEOControllre.js";
+import messageController from '../controllers/messageController.js'
 import { getDailyStats, getWeeklyStats, getMonthlyStats, getYearlyStats } from '../controllers/StatistiqueController.js';
 
 
@@ -18,6 +19,8 @@ router.get('/getobject',middleware.authMiddleware,suEOControllre.getObjectives)
 router.put('/update/:id',userController.updateUser)
 router.post('/forgot-password',userController.forgotPassword);
 router.post('/reset-password/:token',userController.resetPassword);
+router.post('/message',messageController.saveMessage)
+router.get('/getUsers',userController.getAllUser)
 
 router.get('/stats/daily', getDailyStats);
 router.get('/stats/weekly', getWeeklyStats);

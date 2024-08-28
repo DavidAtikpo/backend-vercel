@@ -269,6 +269,18 @@ const getAllUsers = async (req, res) => {
   }
 };
 
+//get all user for message
+ const getAllUser = async (req,res)=>{
+  try {
+    const allUsers = await User.find();
+
+    res.json(allUsers);
+  } catch (error) {
+    console.error('Error occurred while fetching users:', error);
+    res.status(500).json({ error: 'Internal server error' })
+  }
+ }
+
 //user can update 
 
 const updateUser = async(req,res)=>{
@@ -333,27 +345,26 @@ const getProfilePhotoURL = async (req, res) => {
 const forgotPassword = async (req, res) => {
   const { email } = req.body;
 
-  // Check if user exists
-  const user = await User.findOne({ email });
-  if (!user) {
-    return res.status(404).json({ error: 'Email not found' });
-  }
-
-  // Generate reset token
-  const resetToken = crypto.randomBytes(32).toString('hex');
-  const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
-
-  // Set reset token and expiration time in the user record
-  user.passwordResetToken = hashedToken;
-  user.passwordResetExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
-  await user.save();
-
-  // Send reset email
-  const resetURL = `${req.protocol}://${req.get('host')}/user/reset-password/${resetToken}`;
-  const message = `You requested a password reset. Click the link to reset your password: ${resetURL}`;
-  console.log(message);
-  
   try {
+    // Check if user exists
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ error: 'Email not found' });
+    }
+
+    // Generate reset token
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+
+    // Set reset token and expiration time in the user record
+    user.passwordResetToken = hashedToken;
+    user.passwordResetExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+    await user.save();
+
+    // Send reset email
+    const resetURL = `${req.protocol}://${req.get('host')}/user/reset-password/${resetToken}`;
+    const message = `You requested a password reset. Click the link to reset your password: ${resetURL}`;
+
     await sendEmail({
       email: user.email,
       subject: 'Password Reset',
@@ -362,40 +373,53 @@ const forgotPassword = async (req, res) => {
 
     res.status(200).json({ success: 'Reset link sent to email' });
   } catch (error) {
-    user.passwordResetToken = undefined;
-    user.passwordResetExpires = undefined;
-    await user.save();
-
+    // Clear the reset token and expiration time if email sending fails
+    if (user) {
+      user.passwordResetToken = undefined;
+      user.passwordResetExpires = undefined;
+      await user.save();
+    }
     res.status(500).json({ error: 'Email could not be sent' });
   }
 };
 
-// reset password 
+// Reset Password Functionality
 const resetPassword = async (req, res) => {
   const { token } = req.params;
   const { password } = req.body;
 
-  const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+  try {
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
 
-  // Find user by reset token
-  const user = await User.findOne({
-    passwordResetToken: hashedToken,
-    passwordResetExpires: { $gt: Date.now() }
-  });
+    // Find user by reset token
+    const user = await User.findOne({
+      passwordResetToken: hashedToken,
+      passwordResetExpires: { $gt: Date.now() }
+    });
 
-  if (!user) {
-    return res.status(400).json({ error: 'Token is invalid or has expired' });
+    if (!user) {
+      return res.status(400).json({ error: 'Token is invalid or has expired' });
+    }
+
+    // Hash new password before saving
+    user.password = await hashPassword(password); // Ensure you have a function to hash passwords
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    await user.save();
+
+    res.status(200).json({ success: 'Password has been reset' });
+  } catch (error) {
+    res.status(500).json({ error: 'An error occurred while resetting the password' });
   }
+};
 
-  // Update password and clear reset token fields
-  user.password = password;
-  user.passwordResetToken = undefined;
-  user.passwordResetExpires = undefined;
-  await user.save();
-
-  res.status(200).json({ success: 'Password has been reset' });
+// Example function to hash passwords
+const hashPassword = async (password) => {
+  const bcrypt = require('bcryptjs');
+  const salt = await bcrypt.genSalt(10);
+  return bcrypt.hash(password, salt);
 };
 
 
 
-export default { register, loginUser,verifyEmail,reVerifyUser,loginAdmin,getAllUsers,updateUser,getProfilePhotoURL,updateProfilePhotoURL,forgotPassword,resetPassword  };
+export default { register,getAllUser, loginUser,verifyEmail,reVerifyUser,loginAdmin,getAllUsers,updateUser,getProfilePhotoURL,updateProfilePhotoURL,forgotPassword,resetPassword  };
