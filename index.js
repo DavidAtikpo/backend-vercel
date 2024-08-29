@@ -92,6 +92,7 @@ const PORT = process.env.PORT || 7000;
 dbConnect();
 
 // Middleware
+// Middleware
 app.use(bodyParser.json());
 app.use(cors({
     origin: ["http://localhost:5173", "https://projet-cde213.vercel.app"],
@@ -100,6 +101,24 @@ app.use(cors({
     allowedHeaders: ["Content-Type", "Authorization"]
 }));
 app.use(bodyParser.urlencoded({ extended: true }));
+
+// Manually set CORS headers for all routes
+app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", req.headers.origin || "http://localhost:5173");
+    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    next();
+});
+
+// Handle OPTIONS requests
+app.options("*", (req, res) => {
+    res.header("Access-Control-Allow-Origin", req.headers.origin || "http://localhost:5173");
+    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    res.sendStatus(200);
+});
+
+// app.use(bodyParser.urlencoded({ extended: true }));
 
 // Serve static files from the 'uploads' directory
 app.use('/uploads', express.static(join(__dirname, 'uploads')));
