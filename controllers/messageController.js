@@ -1,4 +1,4 @@
-import { io } from '../index.js';  // Adjust path accordingly
+// import { io } from '../index.js';  // Adjust path accordingly
 import Message from "../models/messageModel.js";
 
 const saveMessage = async (req, res) => {
