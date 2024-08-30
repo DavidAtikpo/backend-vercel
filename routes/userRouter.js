@@ -19,8 +19,10 @@ router.get('/getobject',middleware.authMiddleware,suEOControllre.getObjectives)
 router.put('/update/:id',userController.updateUser)
 router.post('/forgot-password',userController.forgotPassword);
 router.post('/reset-password/:token',userController.resetPassword);
+router.post('/logout',userController.logoutUser)
 router.post('/message',messageController.saveMessage)
 router.get('/getUsers',userController.getAllUser)
+
 
 router.get('/stats/daily', getDailyStats);
 router.get('/stats/weekly', getWeeklyStats);

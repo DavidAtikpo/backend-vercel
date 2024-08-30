@@ -420,6 +420,42 @@ const hashPassword = async (password) => {
   return bcrypt.hash(password, salt);
 };
 
+// user logout
+const SECRET_KEY = process.env.JWT_SECRET;
+
+const logoutUser = async (req, res) => {
+  try {
+    const authHeader = req.headers['authorization'];
+    const refreshToken = authHeader && authHeader.split(' ')[1]; // Bearer token
+
+    if (!refreshToken) {
+      return res.status(400).json({ message: 'No refresh token provided' });
+    }
+
+    // Validate the refresh token
+    const decoded = jwt.verify(refreshToken, SECRET_KEY);
+    const userId = decoded.id;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Check if the token matches the stored refreshToken
+    if (user.refreshToken == refreshToken) {
+      return res.status(400).json({ message: 'Invalid refresh token' });
+    }
+
+    // Clear the refresh token
+    user.refreshToken = null;
+    await user.save();
+
+    res.status(200).json({ message: 'Logged out successfully' });
+  } catch (error) {
+    console.error('Error during logout:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
 
 
-export default { register,getAllUser, loginUser,verifyEmail,reVerifyUser,loginAdmin,getAllUsers,updateUser,getProfilePhotoURL,updateProfilePhotoURL,forgotPassword,resetPassword  };
+export default { register,getAllUser, loginUser,verifyEmail,reVerifyUser,loginAdmin,getAllUsers,updateUser,getProfilePhotoURL,updateProfilePhotoURL,forgotPassword,resetPassword,logoutUser  };

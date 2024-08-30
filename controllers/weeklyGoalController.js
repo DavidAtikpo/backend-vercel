@@ -67,8 +67,8 @@ const weekGoal = async (req, res) => {
     }
 }
 
-// get weekly activities
-const getGoal = async (req, res) => {
+// get activite definis pour semaine
+const getDaysGoal = async (req, res) => {
     const userId = req.user.id;
     try {
         // Check if the user exists
@@ -78,8 +78,8 @@ const getGoal = async (req, res) => {
         }
 
         // Find the most recent weekly goal for the user
-        const weeklyGoal = await Goal.findOne({ postedBy: userId }).sort({ createdAt: -1 });
-
+        const weeklyGoal = await WeeklyGoal.findOne({ postedBy: userId }).sort({ createdAt: -1 });
+        console.log("semai",weeklyGoal);
         // Check if a weekly goal exists for the user
         if (!weeklyGoal) {
             return res.status(404).json({ message: "Weekly goal not found" });
@@ -106,6 +106,8 @@ const getWeeklyGoal = async (req, res) => {
 
         // Find the most recent weekly goal for the user
         const weeklyGoal = await Goal.findOne({ postedBy: userId }).sort({ createdAt: -1 });
+        
+        
 
         // Check if a weekly goal exists for the user
         if (!weeklyGoal) {
@@ -119,4 +121,4 @@ const getWeeklyGoal = async (req, res) => {
         res.status(500).json({ message: "Internal server error" });
     }
 };
-export default { createWeeklyGoal,weekGoal,getWeeklyGoal,getGoal };
+export default { createWeeklyGoal,weekGoal,getWeeklyGoal,getDaysGoal };

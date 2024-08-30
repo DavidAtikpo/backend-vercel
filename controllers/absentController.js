@@ -5,6 +5,7 @@ const AbsentChild = async (req, res) => {
   try {
     const requestBody = req.body.ids;
     console.log("body", requestBody);
+console.log("ab",requestBody);
 
     // Retrieve all children from the database with the required fields
     const allChildren = await Children.find();
@@ -77,4 +78,42 @@ const absentChildren = async (req, res) => {
   }
 }
 
-export default { AbsentChild,absentChildren };
+// delete absent count and date
+
+const deleteAbsentCountAndDates = async (req, res) => {
+  try {
+    const { id } = req.params; // Récupère l'id depuis les paramètres
+    console.log("####", id);
+
+    // Trouver l'enregistrement d'absence
+    const absentRecord = await Absent.findById(id);
+
+    if (!absentRecord) {
+      return res.status(404).json({ message: "Enregistrement d'absence non trouvé" });
+    }
+
+    if (absentRecord.absentCount === 1) {
+      // Supprimer l'enregistrement d'absence s'il n'y a plus d'absences
+      await Absent.findByIdAndDelete(id);
+      return res.status(200).json({ message: "Enfant supprimé de la liste d'absences" });
+    } else {
+      // Sinon, réduire le compteur et supprimer les dates d'absence
+      await Absent.findByIdAndUpdate(
+        id,
+        {
+          $inc: { absentCount: -1 }, // Réduit absentCount de 1
+          $unset: { absentDates: "" } // Supprime absentDates
+        },
+        { new: true }
+      );
+
+      res.status(200).json({ message: "AbsentCount réduit et dates d'absence supprimées" });
+    }
+  } catch (error) {
+    res.status(500).json({ message: "Erreur lors de la suppression", error });
+  }
+};
+
+
+
+export default { AbsentChild,absentChildren,deleteAbsentCountAndDates };

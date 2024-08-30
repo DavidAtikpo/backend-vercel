@@ -25,8 +25,8 @@ dbConnect();
 app.use(bodyParser.json());
 app.use(cors(
     {
-        origin: ["https://projet-cde213.vercel.app"],
-        methods:["POST", "GET"],
+        origin: ["http://localhost:5173", "https://projet-cde213.vercel.app"],
+        methods:["POST", "GET","DELETE","PUT"],
         credentials:true
     }
 ));
