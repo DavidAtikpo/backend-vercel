@@ -9,6 +9,7 @@ import childrenRouter from "./routes/childrenRouter.js";
 import absentRouter from './routes/absentRouter.js';
 import router from "./middleware/uploadFile.js";
 import weeklyGoalRouter from './routes/weeklyGoalRouter.js';
+import messageRouter from './routes/messageRouter.js';
 import cors from "cors";
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
@@ -46,6 +47,7 @@ app.use('/child', childrenRouter);
 app.use('/absent', absentRouter);
 app.use('/profile', router);
 app.use('/week', weeklyGoalRouter);
+app.use('/message',messageRouter)
 
 app.listen(PORT, () => {
     console.log(`Server is running at PORT ${PORT}`);
