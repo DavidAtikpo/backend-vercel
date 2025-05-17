@@ -15,19 +15,12 @@ const saveMessage = async (req, res) => {
 // Create a new message
 export const createMessage = async (req, res) => {
   try {
-    const { receiver_id, content } = req.body;
-    const senderId = req.user._id; // Récupérer l'ID de l'utilisateur connecté
-
-    if (!receiver_id || !content) {
-      return res.status(400).json({
-        message: "Receiver ID and content are required",
-      });
-    }
+    const { senderId, receiverId, content } = req.body;
 
     // Create a new message document
     const newMessage = new Message({
       senderId,
-      receiverId: receiver_id,
+      receiverId,
       content,
       timestamp: new Date()
     });
@@ -35,9 +28,11 @@ export const createMessage = async (req, res) => {
     // Save the message to the database
     const savedMessage = await newMessage.save();
 
-    res.status(201).json(savedMessage);
+    res.status(201).json({
+      message: "Message sent successfully",
+      data: savedMessage,
+    });
   } catch (error) {
-    console.error('Error creating message:', error);
     res.status(500).json({
       message: "Failed to send the message",
       error: error.message,
@@ -45,11 +40,10 @@ export const createMessage = async (req, res) => {
   }
 };
 
-// Get all messages between two users
+// Get all messages between two users (e.g., in a chat)
 export const getMessagesBetweenUsers = async (req, res) => {
   try {
-    const receiverId = req.params.receiverId;
-    const senderId = req.user._id; // Récupérer l'ID de l'utilisateur connecté
+    const { senderId, receiverId } = req.params;
 
     const messages = await Message.find({
       $or: [
@@ -58,9 +52,11 @@ export const getMessagesBetweenUsers = async (req, res) => {
       ]
     }).sort({ timestamp: 1 });
 
-    res.status(200).json(messages);
+    res.status(200).json({
+      message: "Messages retrieved successfully",
+      data: messages,
+    });
   } catch (error) {
-    console.error('Error getting messages:', error);
     res.status(500).json({
       message: "Failed to retrieve messages",
       error: error.message,
@@ -72,6 +68,7 @@ export const getMessagesBetweenUsers = async (req, res) => {
 export const getMessageById = async (req, res) => {
   try {
     const { id } = req.params;
+
     const message = await Message.findById(id);
 
     if (!message) {
@@ -80,9 +77,11 @@ export const getMessageById = async (req, res) => {
       });
     }
 
-    res.status(200).json(message);
+    res.status(200).json({
+      message: "Message retrieved successfully",
+      data: message,
+    });
   } catch (error) {
-    console.error('Error getting message:', error);
     res.status(500).json({
       message: "Failed to retrieve the message",
       error: error.message,
@@ -90,26 +89,11 @@ export const getMessageById = async (req, res) => {
   }
 };
 
-// Update a message
+// Update a message (e.g., editing the content)
 export const updateMessage = async (req, res) => {
   try {
     const { id } = req.params;
     const { content } = req.body;
-    const userId = req.user._id; // Récupérer l'ID de l'utilisateur connecté
-
-    // Vérifier si l'utilisateur est le propriétaire du message
-    const message = await Message.findById(id);
-    if (!message) {
-      return res.status(404).json({
-        message: "Message not found",
-      });
-    }
-
-    if (message.senderId.toString() !== userId.toString()) {
-      return res.status(403).json({
-        message: "You are not authorized to update this message",
-      });
-    }
 
     const updatedMessage = await Message.findByIdAndUpdate(
       id,
@@ -117,9 +101,17 @@ export const updateMessage = async (req, res) => {
       { new: true }
     );
 
-    res.status(200).json(updatedMessage);
+    if (!updatedMessage) {
+      return res.status(404).json({
+        message: "Message not found",
+      });
+    }
+
+    res.status(200).json({
+      message: "Message updated successfully",
+      data: updatedMessage,
+    });
   } catch (error) {
-    console.error('Error updating message:', error);
     res.status(500).json({
       message: "Failed to update the message",
       error: error.message,
@@ -131,29 +123,19 @@ export const updateMessage = async (req, res) => {
 export const deleteMessage = async (req, res) => {
   try {
     const { id } = req.params;
-    const userId = req.user._id; // Récupérer l'ID de l'utilisateur connecté
 
-    // Vérifier si l'utilisateur est le propriétaire du message
-    const message = await Message.findById(id);
-    if (!message) {
+    const deletedMessage = await Message.findByIdAndDelete(id);
+
+    if (!deletedMessage) {
       return res.status(404).json({
         message: "Message not found",
       });
     }
 
-    if (message.senderId.toString() !== userId.toString()) {
-      return res.status(403).json({
-        message: "You are not authorized to delete this message",
-      });
-    }
-
-    await Message.findByIdAndDelete(id);
-
     res.status(200).json({
       message: "Message deleted successfully",
     });
   } catch (error) {
-    console.error('Error deleting message:', error);
     res.status(500).json({
       message: "Failed to delete the message",
       error: error.message,
@@ -161,10 +143,4 @@ export const deleteMessage = async (req, res) => {
   }
 };
 
-export default {
-  createMessage,
-  getMessagesBetweenUsers,
-  getMessageById,
-  updateMessage,
-  deleteMessage
-}
+export default {saveMessage,createMessage,getMessagesBetweenUsers,getMessageById,updateMessage,deleteMessage}
