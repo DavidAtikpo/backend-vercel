@@ -1,4 +1,3 @@
-
 import  mongoose  from "mongoose"
 
 const userSchema = new mongoose.Schema({
@@ -14,7 +13,14 @@ const userSchema = new mongoose.Schema({
         type:String,
         required:false
     },
-   
+    class: {
+        type: String,
+        required: false
+    },
+    phoneNumber: {
+        type: String,
+        required: false
+    },
     profileImageURL:{
           type:String,
           default:''
@@ -26,7 +32,6 @@ const userSchema = new mongoose.Schema({
     lastAbsentDate:{
           type:Date,
           default:Date.now
-
     },
     absentDates:[{
         type:Date,
@@ -35,8 +40,6 @@ const userSchema = new mongoose.Schema({
         type:mongoose.Schema.Types.ObjectId,
         ref:"User",
     },
-
-
 },{timestamps:true})
 
 export default mongoose.model('Absent',userSchema)
