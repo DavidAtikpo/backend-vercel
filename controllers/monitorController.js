@@ -21,7 +21,7 @@ export const createMonitor = async (req, res) => {
       firstName,
       lastName,
       email,
-      phone,
+      phoneNumber,
       password: hashedPassword,
       role: role || 'monitor' // Utiliser le rôle fourni ou 'monitor' par défaut
     });
