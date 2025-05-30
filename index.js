@@ -13,6 +13,9 @@ import messageRouter from './routes/messageRouter.js';
 import cors from "cors";
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import monitorRouter from "./routes/monitorRouter.js";
+import classRouter from "./routes/classRouter.js";
+import monitorReportRouter from "./routes/monitorReportRouter.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -48,6 +51,9 @@ app.use('/absent', absentRouter);
 app.use('/profile', router);
 app.use('/week', weeklyGoalRouter);
 app.use('/message',messageRouter)
+app.use('/monitor', monitorRouter);
+app.use('/class', classRouter);
+app.use('/monitor-report', monitorReportRouter);
 
 app.listen(PORT, () => {
     console.log(`Server is running at PORT ${PORT}`);
