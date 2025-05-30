@@ -21,7 +21,7 @@ export const createMonitor = async (req, res) => {
       email,
       phoneNumber,
       password: hashedPassword,
-      role: 'Monitor' // Forcer le rôle à 'Monitor'
+      role: 'monitor' // Forcer le rôle à 'Monitor'
     });
 
     // Ne pas renvoyer le mot de passe hashé dans la réponse
