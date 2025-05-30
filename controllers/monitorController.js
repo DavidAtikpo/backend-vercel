@@ -2,6 +2,7 @@ import Monitor from "../models/monitorModel.js";
 
 export const createMonitor = async (req, res) => {
   try {
+    console.log('request.body', req.body)
     const monitor = await Monitor.create(req.body);
     res.status(201).json(monitor);
   } catch (err) {
