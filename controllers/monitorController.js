@@ -11,17 +11,14 @@ export const createMonitor = async (req, res) => {
       return res.status(400).json({ error: "Cet email est déjà utilisé" });
     }
 
-    // Hasher le mot de passe de la même manière que dans register
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Créer le moniteur avec le mot de passe hashé
+    // Créer le moniteur (le mot de passe sera hashé automatiquement par le middleware pre("save"))
     const monitor = await userModel.create({
       firstName,
       lastName,
       email,
       phoneNumber,
-      password: hashedPassword,
-      role: 'monitor' // Forcer le rôle à 'Monitor'
+      password, // Envoyer le mot de passe en clair, il sera hashé par le middleware
+      role: 'monitor'
     });
 
     // Ne pas renvoyer le mot de passe hashé dans la réponse

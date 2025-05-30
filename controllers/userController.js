@@ -208,9 +208,11 @@ const loginAdmin = async(req,res)=>{
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log('Tentative de connexion pour:', email);
 
     // Recherche de l'utilisateur dans la base de données par email
     const findUser = await User.findOne({ email });
+    console.log('Utilisateur trouvé:', findUser ? 'Oui' : 'Non');
 
     if (!findUser) {
       return res.status(400).json({ error: 'Invalid email' });
@@ -218,6 +220,7 @@ const loginUser = async (req, res) => {
 
     // Vérification de la correspondance du mot de passe
     const passwordMatch = await findUser.isPasswordMatched(password);
+    console.log('Mot de passe correspond:', passwordMatch);
 
     if (!passwordMatch) {
       return res.status(400).json({ error: 'Invalid password' });
