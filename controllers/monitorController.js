@@ -1,4 +1,3 @@
-import Monitor from "../models/monitorModel.js";
 import bcrypt from "bcryptjs";
 import userModel from "../models/userModel.js";
 
