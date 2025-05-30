@@ -11,9 +11,8 @@ export const createMonitor = async (req, res) => {
       return res.status(400).json({ error: "Cet email est déjà utilisé" });
     }
 
-    // Hasher le mot de passe
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    // Hasher le mot de passe de la même manière que dans register
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     // Créer le moniteur avec le mot de passe hashé
     const monitor = await userModel.create({
@@ -22,14 +21,17 @@ export const createMonitor = async (req, res) => {
       email,
       phoneNumber,
       password: hashedPassword,
-      role: role || 'monitor' // Utiliser le rôle fourni ou 'monitor' par défaut
+      role: 'Monitor' // Forcer le rôle à 'Monitor'
     });
 
     // Ne pas renvoyer le mot de passe hashé dans la réponse
     const monitorResponse = monitor.toObject();
     delete monitorResponse.password;
 
-    res.status(201).json(monitorResponse);
+    res.status(201).json({
+      message: `${monitor.firstName} created successfully`,
+      monitor: monitorResponse
+    });
   } catch (err) {
     console.error('Erreur création moniteur:', err);
     res.status(400).json({ error: err.message });
