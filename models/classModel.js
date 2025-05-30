@@ -8,7 +8,7 @@ const classSchema = new mongoose.Schema({
   },
   monitorId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Monitor',
+    ref: 'User',
     required: true
   },
   childIds: [{

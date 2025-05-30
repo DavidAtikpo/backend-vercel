@@ -1,12 +1,13 @@
 import Monitor from "../models/monitorModel.js";
 import bcrypt from "bcryptjs";
+import userModel from "../models/userModel.js";
 
 export const createMonitor = async (req, res) => {
   try {
     const { firstName, lastName, email, phone, password, role } = req.body;
 
     // Vérifier si l'email existe déjà
-    const existingMonitor = await Monitor.findOne({ email });
+    const existingMonitor = await userModel.findOne({ email });
     if (existingMonitor) {
       return res.status(400).json({ error: "Cet email est déjà utilisé" });
     }
@@ -16,7 +17,7 @@ export const createMonitor = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     // Créer le moniteur avec le mot de passe hashé
-    const monitor = await Monitor.create({
+    const monitor = await userModel.create({
       firstName,
       lastName,
       email,
@@ -38,7 +39,7 @@ export const createMonitor = async (req, res) => {
 
 export const getMonitors = async (req, res) => {
   try {
-    const monitors = await Monitor.find();
+    const monitors = await userModel.find({role: 'monitor'});
     res.json(monitors);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -47,7 +48,7 @@ export const getMonitors = async (req, res) => {
 
 export const updateMonitor = async (req, res) => {
   try {
-    const monitor = await Monitor.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const monitor = await userModel.findByIdAndUpdate(req.params.id, req.body, { new: true });
     res.json(monitor);
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -56,7 +57,7 @@ export const updateMonitor = async (req, res) => {
 
 export const deleteMonitor = async (req, res) => {
   try {
-    await Monitor.findByIdAndDelete(req.params.id);
+    await userModel.findByIdAndDelete(req.params.id);
     res.json({ message: "Monitor deleted" });
   } catch (err) {
     res.status(400).json({ error: err.message });
