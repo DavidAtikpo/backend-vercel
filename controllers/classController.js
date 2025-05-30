@@ -33,6 +33,33 @@ export const getClasses = async (req, res) => {
   }
 };
 
+export const getMonitorClass = async (req, res) => {
+  try {
+    // Récupérer l'ID du moniteur depuis le token
+    const monitorId = req.user._id;
+
+    // Trouver la classe associée à ce moniteur
+    const classe = await Class.findOne({ monitorId })
+      .populate({
+        path: 'monitorId',
+        select: 'firstName lastName'
+      })
+      .populate({
+        path: 'childIds',
+        model: 'Children'
+      });
+
+    if (!classe) {
+      return res.status(404).json({ error: "Aucune classe trouvée pour ce moniteur" });
+    }
+
+    res.json(classe);
+  } catch (err) {
+    console.error('Erreur récupération classe moniteur:', err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
 export const updateClass = async (req, res) => {
   try {
     const classe = await Class.findByIdAndUpdate(
