@@ -1,5 +1,5 @@
 import Class from "../models/classModel.js";
-import Child from "../models/childModel.js";
+import Children from "../models/childrenModel.js";
 import Monitor from "../models/monitorModel.js";
 
 export const createClass = async (req, res) => {
@@ -24,7 +24,7 @@ export const getClasses = async (req, res) => {
       })
       .populate({
         path: 'childIds',
-        model: 'Child'
+        model: 'Children'
       });
     res.json(classes);
   } catch (err) {
@@ -55,4 +55,4 @@ export const deleteClass = async (req, res) => {
     console.error('Erreur suppression classe:', err);
     res.status(400).json({ error: err.message });
   }
-}; 
+};
