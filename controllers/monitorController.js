@@ -1,11 +1,37 @@
 import Monitor from "../models/monitorModel.js";
+import bcrypt from "bcryptjs";
 
 export const createMonitor = async (req, res) => {
   try {
-    console.log('request.body', req.body)
-    const monitor = await Monitor.create(req.body);
-    res.status(201).json(monitor);
+    const { firstName, lastName, email, phone, password, role } = req.body;
+
+    // Vérifier si l'email existe déjà
+    const existingMonitor = await Monitor.findOne({ email });
+    if (existingMonitor) {
+      return res.status(400).json({ error: "Cet email est déjà utilisé" });
+    }
+
+    // Hasher le mot de passe
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // Créer le moniteur avec le mot de passe hashé
+    const monitor = await Monitor.create({
+      firstName,
+      lastName,
+      email,
+      phone,
+      password: hashedPassword,
+      role: role || 'monitor' // Utiliser le rôle fourni ou 'monitor' par défaut
+    });
+
+    // Ne pas renvoyer le mot de passe hashé dans la réponse
+    const monitorResponse = monitor.toObject();
+    delete monitorResponse.password;
+
+    res.status(201).json(monitorResponse);
   } catch (err) {
+    console.error('Erreur création moniteur:', err);
     res.status(400).json({ error: err.message });
   }
 };
