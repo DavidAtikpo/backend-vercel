@@ -4,7 +4,7 @@ import userModel from "../models/userModel.js";
 
 export const createMonitor = async (req, res) => {
   try {
-    const { firstName, lastName, email, phone, password, role } = req.body;
+    const { firstName, lastName, email, phoneNumber, password, role } = req.body;
 
     // Vérifier si l'email existe déjà
     const existingMonitor = await userModel.findOne({ email });
