@@ -5,7 +5,8 @@ import {
   updateMonitorReport, 
   deleteMonitorReport,
   getMonitorReportsByClass,
-  getMonitorReportsByMonitor
+  getMonitorReportsByMonitor,
+  getRecentMonitorReports
 } from "../controllers/monitorReportController.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 
@@ -14,6 +15,7 @@ const router = express.Router();
 // Routes protégées par authentification
 router.post("/", authMiddleware.authMiddleware, createMonitorReport);
 router.get("/", authMiddleware.authMiddleware, getMonitorReports);
+router.get("/recent", authMiddleware.authMiddleware, getRecentMonitorReports);
 router.get("/class/:classId", authMiddleware.authMiddleware, getMonitorReportsByClass);
 router.get("/monitor/:monitorId", authMiddleware.authMiddleware, getMonitorReportsByMonitor);
 router.put("/:id", authMiddleware.authMiddleware, updateMonitorReport);

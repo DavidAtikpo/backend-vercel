@@ -41,7 +41,21 @@ export const getClasses = async (req, res) => {
 export const getMonitorClass = async (req, res) => {
   try {
     const monitorId = req.user._id;
-    const classe = await Class.findOne({ monitorId })
+    console.log('ID du moniteur:', monitorId);
+    
+    if (!monitorId) {
+      return res.status(400).json({ error: "ID du moniteur manquant" });
+    }
+    
+    const classe = await Class.findOne({ monitorId });
+    console.log('Résultat de la recherche:', classe);
+    
+    if (!classe) {
+      console.log('Aucune classe trouvée pour le moniteur');
+      return res.status(404).json({ error: "Aucune classe trouvée pour ce moniteur" });
+    }
+
+    const populatedClass = await Class.findOne({ monitorId })
       .populate({
         path: 'monitorId',
         select: 'firstName lastName email phoneNumber'
@@ -50,12 +64,9 @@ export const getMonitorClass = async (req, res) => {
         path: 'childIds',
         model: 'Children'
       });
-
-    if (!classe) {
-      return res.status(404).json({ error: "Aucune classe trouvée pour ce moniteur" });
-    }
-
-    res.json(classe);
+    
+    console.log('Classe avec données populées:', populatedClass);
+    res.json(populatedClass);
   } catch (err) {
     console.error('Erreur récupération classe moniteur:', err);
     res.status(500).json({ error: err.message });

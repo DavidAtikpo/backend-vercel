@@ -116,4 +116,25 @@ export const deleteMonitorReport = async (req, res) => {
     console.error('Erreur suppression rapport:', err);
     res.status(400).json({ error: err.message });
   }
+};
+
+export const getRecentMonitorReports = async (req, res) => {
+  try {
+    const reports = await MonitorReport.find()
+      .populate({
+        path: "classId",
+        select: "name"
+      })
+      .populate({
+        path: "monitorId",
+        select: "firstName lastName"
+      })
+      .sort({ date: -1 })
+      .limit(5); // Limite à 5 rapports les plus récents
+    
+    res.json(reports);
+  } catch (err) {
+    console.error('Erreur récupération rapports récents:', err);
+    res.status(500).json({ error: err.message });
+  }
 }; 

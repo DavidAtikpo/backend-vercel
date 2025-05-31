@@ -209,10 +209,15 @@ const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
     console.log('Tentative de connexion pour:', email);
+    console.log('Mot de passe reçu:', password);
 
     // Recherche de l'utilisateur dans la base de données par email
     const findUser = await User.findOne({ email });
     console.log('Utilisateur trouvé:', findUser ? 'Oui' : 'Non');
+    if (findUser) {
+      console.log('Rôle de l\'utilisateur:', findUser.role);
+      console.log('Mot de passe hashé stocké:', findUser.password);
+    }
 
     if (!findUser) {
       return res.status(400).json({ error: 'Invalid email' });

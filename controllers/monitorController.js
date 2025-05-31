@@ -4,6 +4,7 @@ import userModel from "../models/userModel.js";
 export const createMonitor = async (req, res) => {
   try {
     const { firstName, lastName, email, phoneNumber, password, role } = req.body;
+    console.log('Création moniteur - Mot de passe reçu:', password);
 
     // Vérifier si l'email existe déjà
     const existingMonitor = await userModel.findOne({ email });
@@ -11,7 +12,7 @@ export const createMonitor = async (req, res) => {
       return res.status(400).json({ error: "Cet email est déjà utilisé" });
     }
 
-    // Créer le moniteur (le mot de passe sera hashé automatiquement par le middleware pre("save"))
+    // Créer le moniteur avec le mot de passe en clair
     const monitor = await userModel.create({
       firstName,
       lastName,
@@ -20,6 +21,8 @@ export const createMonitor = async (req, res) => {
       password, // Envoyer le mot de passe en clair, il sera hashé par le middleware
       role: 'monitor'
     });
+
+    console.log('Moniteur créé - Mot de passe hashé:', monitor.password);
 
     // Ne pas renvoyer le mot de passe hashé dans la réponse
     const monitorResponse = monitor.toObject();
@@ -59,5 +62,31 @@ export const deleteMonitor = async (req, res) => {
     res.json({ message: "Monitor deleted" });
   } catch (err) {
     res.status(400).json({ error: err.message });
+  }
+};
+
+export const getMonitorProfile = async (req, res) => {
+  try {
+    const monitor = await userModel.findById(req.user._id).select('-password');
+    if (!monitor) {
+      return res.status(404).json({ error: "Moniteur non trouvé" });
+    }
+    res.json(monitor);
+  } catch (err) {
+    console.error('Erreur récupération profil moniteur:', err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+export const getMonitorById = async (req, res) => {
+  try {
+    const monitor = await userModel.findById(req.params.id).select('-password');
+    if (!monitor) {
+      return res.status(404).json({ error: "Moniteur non trouvé" });
+    }
+    res.json(monitor);
+  } catch (err) {
+    console.error('Erreur récupération moniteur:', err);
+    res.status(500).json({ error: err.message });
   }
 }; 
