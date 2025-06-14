@@ -10,7 +10,9 @@ import absentRouter from './routes/absentRouter.js';
 import router from "./middleware/uploadFile.js";
 import weeklyGoalRouter from './routes/weeklyGoalRouter.js';
 import messageRouter from './routes/messageRouter.js';
+import statisticRouter from './routes/statisticRouter.js';
 import cors from "cors";
+
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import monitorRouter from "./routes/monitorRouter.js";
@@ -54,6 +56,7 @@ app.use('/message',messageRouter)
 app.use('/monitor', monitorRouter);
 app.use('/class', classRouter);
 app.use('/monitor-report', monitorReportRouter);
+app.use('/statistic', statisticRouter);
 
 app.listen(PORT, () => {
     console.log(`Server is running at PORT ${PORT}`);

@@ -14,9 +14,9 @@ router.get('/admin/dashboard', middleware.authMiddleware, getAdminDashboard);
 router.post('/admin/stats/recalculate', middleware.authMiddleware, recalculateAllStats);
 
 // Routes existantes améliorées
-router.get('/stats/daily', middleware.authMiddleware, getDailyStats);
-router.get('/stats/weekly', middleware.authMiddleware, getWeeklyStats);
-router.get('/stats/monthly', middleware.authMiddleware, getMonthlyStats);
-router.get('/stats/yearly', middleware.authMiddleware, getYearlyStats);
+router.get('/admin/stats/daily', middleware.authMiddleware, getDailyStats);
+router.get('/admin/stats/weekly', middleware.authMiddleware, getWeeklyStats);
+router.get('/admin/stats/monthly', middleware.authMiddleware, getMonthlyStats);
+router.get('/admin/stats/yearly', middleware.authMiddleware, getYearlyStats);
 
 export default router;
